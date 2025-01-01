@@ -30,7 +30,7 @@ function App() {
               Secure Your Data
           </pre>
           <br/>
-          <h2>"Here, we use the Vernam cipher—a secure method
+          <h2>"Hello, we use the Vernam cipher—a secure method
             that combines your text with a secret key to encrypt it.
             Each character of your text is mixed with a corresponding
             key character, ensuring strong encryption. Enter your plain
