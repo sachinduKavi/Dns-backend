@@ -21,6 +21,7 @@ const vernamEncode = async (req: Request, res: Response) => {
     // Fetch plain text and the ky
     const plainText:string = req.body.content.toLowerCase()
     const key:string = req.body.key.toLowerCase()
+    console.log(checkFormat(plainText), key)
     if(checkFormat(plainText) && checkFormat(key)) {
         let index = 0
 
