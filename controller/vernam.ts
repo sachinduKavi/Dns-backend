@@ -1,4 +1,5 @@
 import { Response, Request } from "express";
+import { checkFormat } from "../middleware/textFormat";
 
 
 const alphabet = new Map<string, number>();
@@ -15,27 +16,33 @@ reverseAlphabet.set(26, ' ')
 
 // Vernam encode function
 const vernamEncode = async (req: Request, res: Response) => {
-    let proceed = true, message = null
+    let proceed = true, message = null, content = null
 
     // Fetch plain text and the ky
     const plainText:string = req.body.content.toLowerCase()
     const key:string = req.body.key.toLowerCase()
-    let index = 0
+    if(checkFormat(plainText) && checkFormat(key)) {
+        let index = 0
 
-    let cipherText = ""
-    plainText.split('').forEach(element => {
-        if(index >= key.length) index = 0;
-        const letterResultNumber: number = ((alphabet.get(element) ?? 0) + (alphabet.get(key.charAt(index)) ?? 0)) % 27;
-        
-        // Convert to cipher text
-        cipherText += reverseAlphabet.get(letterResultNumber)
-        index++;
-    });
+        let cipherText = ""
+        plainText.split('').forEach(element => {
+            if(index >= key.length) index = 0;
+            const letterResultNumber: number = ((alphabet.get(element) ?? 0) + (alphabet.get(key.charAt(index)) ?? 0)) % 27;
+            
+            // Convert to cipher text
+            cipherText += reverseAlphabet.get(letterResultNumber)
+            index++;
+        });
+        content = cipherText
+    } else {
+        proceed = false
+        message = "Should only contains simple letters"
+    }
 
     
     res.status(200).json({
         proceed: proceed,
-        content: cipherText,
+        content: content,
         message: message
     })
 }
@@ -43,27 +50,35 @@ const vernamEncode = async (req: Request, res: Response) => {
 
 // Vernam decode
 const vernamDecode = async (req: Request, res: Response) => {
-    let proceed = true, message = null
+    let proceed = true, message = null, content = null
 
     // Fetch plain text and the ky
     const cipherText:string = req.body.content.toLowerCase()
     const key:string = req.body.key.toLowerCase()
-    let index = 0
+    
+    if(checkFormat(cipherText) && checkFormat(key)) {
+        let index = 0
 
-    let plainText = ""
-    cipherText.split('').forEach(element => {
-        if(index >= key.length) index = 0;
-        const letterResultNumber: number = ((alphabet.get(element) ?? 0) - (alphabet.get(key.charAt(index)) ?? 0) + 27) % 27;
+        let plainText = ""
+        cipherText.split('').forEach(element => {
+            if(index >= key.length) index = 0;
+            const letterResultNumber: number = ((alphabet.get(element) ?? 0) - (alphabet.get(key.charAt(index)) ?? 0) + 27) % 27;
 
-        // Convert to cipher text
-        plainText += reverseAlphabet.get(letterResultNumber)
-        index++;
-    });
+            // Convert to cipher text
+            plainText += reverseAlphabet.get(letterResultNumber)
+            index++;
+        });
+
+        content = plainText
+    } else {
+        proceed = false
+        message = "Should only contains simple letters"
+    }
 
 
     res.status(200).json({
         proceed: proceed,
-        content: plainText,
+        content: content,
         message: message
     })
 }
