@@ -8,22 +8,23 @@ Array.from({length: 26}, (_, i) => String.fromCharCode(97 + i)).forEach((element
     reverseAlphabet.set(index, element)
 })
 alphabet.set(' ', 26)
+reverseAlphabet.set(26, ' ')
 
 
+
+
+// Vernam encode function
 const vernamEncode = async (req: Request, res: Response) => {
     let proceed = true, message = null
-
-    
 
     // Fetch plain text and the ky
     const plainText:string = req.body.content.toLowerCase()
     const key:string = req.body.key.toLowerCase()
     let index = 0
 
-  
     let cipherText = ""
     plainText.split('').forEach(element => {
-        if(index > key.length) index = 0;
+        if(index >= key.length) index = 0;
         const letterResultNumber: number = ((alphabet.get(element) ?? 0) + (alphabet.get(key.charAt(index)) ?? 0)) % 27;
         
         // Convert to cipher text
@@ -32,7 +33,6 @@ const vernamEncode = async (req: Request, res: Response) => {
     });
 
     
-
     res.status(200).json({
         proceed: proceed,
         content: cipherText,
@@ -41,6 +41,35 @@ const vernamEncode = async (req: Request, res: Response) => {
 }
 
 
+// Vernam decode
+const vernamDecode = async (req: Request, res: Response) => {
+    let proceed = true, message = null
+
+    // Fetch plain text and the ky
+    const cipherText:string = req.body.content.toLowerCase()
+    const key:string = req.body.key.toLowerCase()
+    let index = 0
+
+    let plainText = ""
+    cipherText.split('').forEach(element => {
+        if(index >= key.length) index = 0;
+        const letterResultNumber: number = ((alphabet.get(element) ?? 0) - (alphabet.get(key.charAt(index)) ?? 0) + 27) % 27;
+
+        // Convert to cipher text
+        plainText += reverseAlphabet.get(letterResultNumber)
+        index++;
+    });
+
+
+    res.status(200).json({
+        proceed: proceed,
+        content: plainText,
+        message: message
+    })
+}
+
+
 export {
-    vernamEncode
+    vernamEncode,
+    vernamDecode
 }
