@@ -22,7 +22,8 @@ const vernamEncode = async (req: Request, res: Response) => {
     const plainText:string = req.body.content.toLowerCase()
     const key:string = req.body.key.toLowerCase()
 
-    if(checkFormat(plainText) && checkFormat(key)) {
+
+    if(checkFormat(plainText) && checkFormat(key) || plainText.length === 0) {
         let index = 0
 
         let cipherText = ""
